@@ -12,6 +12,7 @@ const Quiz = () => {
   const [quiz, setQuiz] = useState<QuizType | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+  const [currentSelection, setCurrentSelection] = useState<number | undefined>(undefined);
   const [showResult, setShowResult] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -25,19 +26,28 @@ const Quiz = () => {
   if (!quiz) return <div>Loading...</div>;
 
   const handleAnswer = (value: string) => {
-    const newAnswers = [...selectedAnswers];
     const answerIndex = parseInt(value);
-    newAnswers[currentIndex] = answerIndex;
+    setCurrentSelection(answerIndex);
+    // Don't show feedback yet - wait for submit button
+  };
+
+  const handleSubmit = () => {
+    if (currentSelection === undefined) return;
+    
+    // Save the answer to the array
+    const newAnswers = [...selectedAnswers];
+    newAnswers[currentIndex] = currentSelection;
     setSelectedAnswers(newAnswers);
     
-    // Show feedback
-    const correct = answerIndex === quiz.questions[currentIndex].correctIndex;
+    // Show feedback when submit button is clicked
+    const correct = currentSelection === quiz.questions[currentIndex].correctIndex;
     setIsCorrect(correct);
     setShowFeedback(true);
   };
 
   const nextQuestion = () => {
     setShowFeedback(false);
+    setCurrentSelection(undefined); // Clear selection for next question
     if (currentIndex < quiz.questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
@@ -46,7 +56,7 @@ const Quiz = () => {
   };
 
   const question = quiz.questions[currentIndex];
-  const selected = selectedAnswers[currentIndex] !== undefined ? selectedAnswers[currentIndex] : null;
+  const selected = currentSelection;
 
   if (showResult) {
     const score = selectedAnswers.reduce((acc, ans, idx) => acc + (ans === quiz.questions[idx].correctIndex ? 1 : 0), 0);
@@ -74,7 +84,7 @@ const Quiz = () => {
       <Card>
         <CardContent className="pt-6">
           <h3 className="text-lg mb-4">{question.text}</h3>
-          <RadioGroup value={selected?.toString()} onValueChange={handleAnswer} disabled={showFeedback}>
+          <RadioGroup key={currentIndex} value={selected !== undefined ? selected.toString() : undefined} onValueChange={handleAnswer} disabled={showFeedback}>
             {question.options.map((option, idx) => {
               let optionClass = "flex items-center space-x-2 p-2 rounded";
               
@@ -116,8 +126,8 @@ const Quiz = () => {
           
           <Button 
             className="mt-4" 
-            onClick={nextQuestion} 
-            disabled={selected === null}
+            onClick={showFeedback ? nextQuestion : handleSubmit} 
+            disabled={selected === undefined}
             variant={showFeedback ? "default" : "secondary"}
           >
             {showFeedback 
