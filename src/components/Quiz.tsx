@@ -77,6 +77,16 @@ const Quiz = () => {
     );
   }
 
+  // Helper function to extract YouTube video ID
+  const getYouTubeEmbedUrl = (url: string) => {
+    // Handle youtube.com/watch?v=... and youtu.be/... formats
+    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    if (videoIdMatch && videoIdMatch[1]) {
+      return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
+    }
+    return null;
+  };
+
   return (
     <div className="container mx-auto py-8">
       <h2 className="text-2xl font-bold mb-4">{quiz.title}</h2>
@@ -84,6 +94,35 @@ const Quiz = () => {
       <Card>
         <CardContent className="pt-6">
           <h3 className="text-lg mb-4">{question.text}</h3>
+          
+          {/* Display images if present */}
+          {question.images && question.images.length > 0 && (
+            <div className="mb-4 space-y-2">
+              {question.images.map((imageUrl, idx) => (
+                <img 
+                  key={idx} 
+                  src={imageUrl} 
+                  alt={`Question image ${idx + 1}`} 
+                  className="max-w-full h-auto rounded-lg shadow-md"
+                />
+              ))}
+            </div>
+          )}
+          
+          {/* Display YouTube video if present */}
+          {question.youtubeUrl && (
+            <div className="mb-4 aspect-video">
+              <iframe
+                className="w-full h-full rounded-lg shadow-md"
+                src={getYouTubeEmbedUrl(question.youtubeUrl) || ''}
+                title="YouTube video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+          
           <RadioGroup key={currentIndex} value={selected !== undefined ? selected.toString() : undefined} onValueChange={handleAnswer} disabled={showFeedback}>
             {question.options.map((option, idx) => {
               let optionClass = "flex items-center space-x-2 p-2 rounded";
