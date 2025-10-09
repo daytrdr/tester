@@ -23,24 +23,28 @@ export function parseQuiz(md: string): Quiz {
     youtubeUrl?: string;
   } | null = null;
 
+  function buildQuestion(q: { text: string; options: string[]; correctIndex: number | null; images: string[]; youtubeUrl?: string; }): Question {
+    const question: Question = {
+      text: q.text,
+      options: q.options,
+      correctIndex: q.correctIndex as number,
+    };
+    if (q.images.length > 0) {
+      question.images = q.images;
+    }
+    if (q.youtubeUrl) {
+      question.youtubeUrl = q.youtubeUrl;
+    }
+    return question;
+  }
+
   for (const line of lines) {
     const trimmedLine = line.trim();
     if (trimmedLine.startsWith('# ')) {
       title = trimmedLine.slice(2).trim();
     } else if (trimmedLine.startsWith('## ')) {
       if (currentQuestion && currentQuestion.correctIndex !== null) {
-        const question: Question = {
-          text: currentQuestion.text,
-          options: currentQuestion.options,
-          correctIndex: currentQuestion.correctIndex,
-        };
-        if (currentQuestion.images.length > 0) {
-          question.images = currentQuestion.images;
-        }
-        if (currentQuestion.youtubeUrl) {
-          question.youtubeUrl = currentQuestion.youtubeUrl;
-        }
-        questions.push(question);
+        questions.push(buildQuestion(currentQuestion));
       }
       currentQuestion = {
         text: trimmedLine.slice(3).trim(),
@@ -73,18 +77,7 @@ export function parseQuiz(md: string): Quiz {
   }
 
   if (currentQuestion && currentQuestion.correctIndex !== null) {
-    const question: Question = {
-      text: currentQuestion.text,
-      options: currentQuestion.options,
-      correctIndex: currentQuestion.correctIndex,
-    };
-    if (currentQuestion.images.length > 0) {
-      question.images = currentQuestion.images;
-    }
-    if (currentQuestion.youtubeUrl) {
-      question.youtubeUrl = currentQuestion.youtubeUrl;
-    }
-    questions.push(question);
+    questions.push(buildQuestion(currentQuestion));
   }
 
   return { title, questions };
