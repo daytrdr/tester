@@ -25,7 +25,16 @@ export function parseQuiz(md: string): Quiz {
     explanation?: string;
   } | null = null;
 
-  function buildQuestion(q: { text: string; options: string[]; correctIndex: number | null; images: string[]; youtubeUrl?: string; explanation?: string; }): Question {
+  type RawQuestion = {
+    text: string;
+    options: string[];
+    correctIndex: number | null;
+    images: string[];
+    youtubeUrl?: string;
+    explanation?: string;
+  };
+
+  function buildQuestion(q: RawQuestion): Question {
     const question: Question = {
       text: q.text,
       options: q.options,
