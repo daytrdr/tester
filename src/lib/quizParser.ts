@@ -4,6 +4,7 @@ export interface Question {
   correctIndex: number;
   images?: string[];
   youtubeUrl?: string;
+  explanation?: string;
 }
 
 export interface Quiz {
@@ -21,9 +22,10 @@ export function parseQuiz(md: string): Quiz {
     correctIndex: number | null;
     images: string[];
     youtubeUrl?: string;
+    explanation?: string;
   } | null = null;
 
-  function buildQuestion(q: { text: string; options: string[]; correctIndex: number | null; images: string[]; youtubeUrl?: string; }): Question {
+  function buildQuestion(q: { text: string; options: string[]; correctIndex: number | null; images: string[]; youtubeUrl?: string; explanation?: string; }): Question {
     const question: Question = {
       text: q.text,
       options: q.options,
@@ -34,6 +36,9 @@ export function parseQuiz(md: string): Quiz {
     }
     if (q.youtubeUrl) {
       question.youtubeUrl = q.youtubeUrl;
+    }
+    if (q.explanation) {
+      question.explanation = q.explanation;
     }
     return question;
   }
@@ -65,6 +70,12 @@ export function parseQuiz(md: string): Quiz {
       if (currentQuestion) {
         const youtubeUrl = trimmedLine.slice(8).trim();
         currentQuestion.youtubeUrl = youtubeUrl;
+      }
+    } else if (trimmedLine.startsWith('explanation:')) {
+      // Parse explanation: explanation: This is why the answer is correct
+      if (currentQuestion) {
+        const explanation = trimmedLine.slice(12).trim();
+        currentQuestion.explanation = explanation;
       }
     } else if (trimmedLine.startsWith('- ')) {
       if (currentQuestion) {

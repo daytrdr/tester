@@ -160,6 +160,16 @@ const Quiz = () => {
                   The correct answer is: {question.options[question.correctIndex]}
                 </p>
               )}
+              {question.explanation && (
+                <div className={`mt-3 pt-3 border-t ${isCorrect ? 'border-green-200' : 'border-red-200'}`}>
+                  <p className={`font-semibold ${isCorrect ? 'text-green-800' : 'text-red-800'} mb-1`}>
+                    Explanation:
+                  </p>
+                  <p className={isCorrect ? 'text-green-700' : 'text-red-700'}>
+                    {question.explanation}
+                  </p>
+                </div>
+              )}
             </div>
           )}
           
